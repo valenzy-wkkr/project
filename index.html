@@ -4,7 +4,189 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enchanted Rose</title>
-    <link rel="stylesheet" href="estilos.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #0f0f1e;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            height: 500px;
+            width: 300px;
+        }
+
+        .glass-dome {
+            position: absolute;
+            width: 200px;
+            height: 300px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 100px 100px 50px 50px;
+            left: 50%;
+            bottom: 50px;
+            transform: translateX(-50%);
+            box-shadow: 
+                0 0 20px rgba(255, 255, 255, 0.2),
+                inset 0 0 20px rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .base {
+            position: absolute;
+            width: 240px;
+            height: 50px;
+            background-color: #4a3b2c;
+            border-radius: 10px;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .stem {
+            position: absolute;
+            width: 6px;
+            height: 200px;
+            background-color: #2d5f2d;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        .rose {
+            position: absolute;
+            bottom: 250px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        .petal {
+            position: absolute;
+            width: 30px;
+            height: 40px;
+            background-color: #cc0033;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            transform-origin: bottom center;
+            animation: glow 3s infinite alternate;
+        }
+
+        .leaf {
+            position: absolute;
+            width: 30px;
+            height: 15px;
+            background-color: #2d5f2d;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            z-index: 0;
+        }
+
+        .leaf:nth-child(1) {
+            left: -20px;
+            bottom: 100px;
+            transform: rotate(-30deg);
+        }
+
+        .leaf:nth-child(2) {
+            right: -20px;
+            bottom: 130px;
+            transform: rotate(30deg);
+        }
+
+        .falling-petal {
+            position: absolute;
+            width: 15px;
+            height: 20px;
+            background-color: #cc0033;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            opacity: 0;
+            z-index: 5;
+        }
+
+        .glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, rgba(255, 215, 0, 0) 70%);
+            border-radius: 50%;
+            animation: pulse 2s infinite alternate;
+            z-index: 0;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.3;
+            }
+            100% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
+        }
+
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px rgba(204, 0, 51, 0.5);
+            }
+            100% {
+                box-shadow: 0 0 20px rgba(204, 0, 51, 0.8), 0 0 30px rgba(255, 215, 0, 0.5);
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-10px) rotate(5deg);
+            }
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(200px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes sparkleAnim {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -21,5 +203,84 @@
         </div>
         <div id="fallingPetals"></div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const rose = document.getElementById('rose');
+            const fallingPetals = document.getElementById('fallingPetals');
+            const glassDome = document.querySelector('.glass-dome');
+            
+            // Create rose petals
+            for (let i = 0; i < 12; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                petal.style.transform = `rotate(${i * 30}deg) translateX(${i % 2 === 0 ? 5 : 10}px)`;
+                rose.appendChild(petal);
+            }
+
+            // Create central petals
+            for (let i = 0; i < 8; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                petal.style.width = '25px';
+                petal.style.height = '35px';
+                petal.style.transform = `rotate(${i * 45}deg) translateX(5px)`;
+                petal.style.zIndex = '3';
+                rose.appendChild(petal);
+            }
+
+            // Create sparkles
+            function createSparkles() {
+                for (let i = 0; i < 20; i++) {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = `${Math.random() * 200}px`;
+                    sparkle.style.top = `${Math.random() * 300}px`;
+                    sparkle.style.animationDelay = `${Math.random() * 2}s`;
+                    sparkle.style.animation = `sparkleAnim ${1 + Math.random() * 2}s infinite`;
+                    glassDome.appendChild(sparkle);
+                }
+            }
+            createSparkles();
+
+            // Make the rose float gently
+            rose.style.animation = 'float 3s ease-in-out infinite alternate';
+
+            // Occasionally drop a petal
+            function dropPetal() {
+                const petal = document.createElement('div');
+                petal.className = 'falling-petal';
+                petal.style.left = `${150 + (Math.random() * 40 - 20)}px`;
+                petal.style.top = `${150 + (Math.random() * 20)}px`;
+                petal.style.transform = `rotate(${Math.random() * 360}deg)`;
+                petal.style.animation = `fall ${3 + Math.random() * 2}s linear forwards`;
+                petal.style.opacity = '1';
+                fallingPetals.appendChild(petal);
+                
+                // Remove petal after animation completes
+                setTimeout(() => {
+                    petal.remove();
+                }, 5000);
+            }
+
+            // Drop a petal every few seconds
+            setInterval(dropPetal, 3000);
+
+            // Make the rose interactive
+            rose.addEventListener('click', function() {
+                // Create a burst of sparkles
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(dropPetal, i * 200);
+                }
+                
+                // Add a pulse effect
+                const glow = document.querySelector('.glow');
+                glow.style.animation = 'none';
+                setTimeout(() => {
+                    glow.style.animation = 'pulse 2s infinite alternate';
+                }, 10);
+            });
+        });
+    </script>
 </body>
 </html>
